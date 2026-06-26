@@ -1,0 +1,79 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Train ESRGAN",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "train.py",
+      "args": ["-opt", "./options/train/ESRGAN/ESRGAN_finetune.yml"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Train SPAN",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "train.py",
+      "args": ["-opt", "./options/train/SPAN/SPAN.yml"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Train RealPLKSR",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "train.py",
+      "args": ["-opt", "./options/train/RealPLKSR/RealPLKSR_finetune.yml"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Train TSCUNet",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "train.py",
+      "args": ["-opt", "./options/train/TSCUNet/TSCUNet_fromscratch.yml"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Train DAT",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "train.py",
+      "args": ["--auto_resume", "-opt", "./options/train/DAT/DAT.yml"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Train ESRGAN OTF",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "train.py",
+      "args": ["-opt", "./options/train/ESRGAN/ESRGAN_otf.yml"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Test RealPLKSR",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "test.py",
+      "args": ["-opt", "./options/test/RealPLKSR/4x_boorujanaiv11_realplksr_finetune4xmssim_single.yml"],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}
