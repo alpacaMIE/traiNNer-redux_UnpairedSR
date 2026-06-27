@@ -37,7 +37,7 @@ class AutoEncoder(nn.Module):
             self.conv_first, self.down, self.body, self.conv_last
         )
 
-        from traiNNer.models.sr_model import build_network
+        from traiNNer.archs import build_network
 
         self.decoder = build_network({**decoder_opt, "scale": scale})
 

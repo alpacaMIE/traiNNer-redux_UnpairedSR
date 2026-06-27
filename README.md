@@ -1,39 +1,67 @@
-# traiNNer-redux
-![redux3](https://github.com/user-attachments/assets/d107b2fc-6b68-4d3e-b08d-82c8231796cb)
+# traiNNer-redux · Unpaired SR
 
-## Overview
-[traiNNer-redux](https://trainner-redux.readthedocs.io/en/latest/index.html) is a deep learning training framework for image super resolution and restoration which allows you to train PyTorch models for upscaling and restoring images and videos. NVIDIA graphics card is recommended, but AMD works on Linux machines with ROCm.
+A focused fork of [traiNNer-redux](https://github.com/the-database/traiNNer-redux) dedicated to **unpaired / blind super-resolution**. It keeps traiNNer-redux's large library of network architectures and pairs them with a **Probabilistic Degradation Model (PDM)** so you can train an upscaler **without aligned LR/HR pairs** — you only need a folder of real low-quality images and an unrelated folder of high-quality reference images from the target domain.
 
-## Usage Instructions
-Please see the [getting started](https://trainner-redux.readthedocs.io/en/latest/getting_started.html) page for instructions on how to use traiNNer-redux.
+All paired-SR, on-the-fly (Real-ESRGAN) degradation, ONNX export, and documentation tooling from upstream has been removed. What remains is the unpaired training pipeline plus every generator/discriminator architecture.
 
-## Contributing
-Please see the [contributing](https://trainner-redux.readthedocs.io/en/latest/contributing.html) page for more info on how to contribute.
+## How unpaired training works
 
-## Resources
-- [OpenModelDB](https://openmodeldb.info/): Repository of AI upscaling models, which can be used as pretrain models to train new models. Models trained with this repo can be submitted to OMDB.
-- [chaiNNer](https://github.com/chaiNNer-org/chaiNNer): General purpose tool for AI upscaling and image processing, models trained with this repo can be run on chaiNNer. chaiNNer can also assist with dataset preparation.
-- [WTP Dataset Destroyer](https://github.com/umzi2/wtp_dataset_destroyer): Tool to degrade high quality images, which can be used to prepare the low quality images for the training dataset.
-- [Video Destroyer](https://github.com/Kim2091/video-destroyer): A tool designed to create datasets from a single high quality input video for AI training purposes.
-- [helpful-scripts](https://github.com/Kim2091/helpful-scripts): Collection of scripts written to improve experience training AI models.
-- [Dataset_Preprocessing](https://github.com/umzi2/Dataset_Preprocessing): A small collection of scripts for initial dataset processing.
-- [Enhance Everything! Discord Server](https://discord.gg/cpAUpDK): Get help training a model, share upscaling results, submit your trained models, and more.
-- [vs_align](https://github.com/pifroggi/vs_align): Video Alignment and Synchonization for Vapoursynth, tool to align LR and HR datasets.
-- [ImgAlign](https://github.com/sonic41592/ImgAlign): Tool for auto aligning, cropping, and scaling HR and LR images for training image based neural networks.
-- [Deep Learning Tuning Playbook](https://developers.google.com/machine-learning/guides/deep-learning-tuning-playbook): Document to help you train deep learning models more effectively.
+The PDM approach jointly trains four networks:
 
-## License and Acknowledgement
+- **`network_g`** — the SR generator (any architecture below).
+- **`network_deg`** (`pdmdegmodel`) — a learned degradation model (blur kernel + noise) that turns HR into realistic synthetic LR.
+- **`network_d_lr`** / **`network_d_sr`** (`pdmpatchgandiscriminator`) — PatchGAN discriminators in the LR and SR domains.
 
-traiNNer-redux is released under the [Apache License 2.0](LICENSE.txt). See [LICENSE](LICENSE/README.md) for individual licenses and acknowledgements.
+The degradation model learns to make synthetic LR match your real LR distribution, while the generator learns to invert it — so no pixel-aligned pairs are required.
 
-- This repository is a fork of [joeyballentine/traiNNer-redux](https://github.com/joeyballentine/traiNNer-redux) which itself is a fork of [BasicSR](https://github.com/XPixelGroup/BasicSR).
-- Network architectures are imported from [Spandrel](https://github.com/chaiNNer-org/spandrel).
-- Several architectures are developed by [umzi2](https://github.com/umzi2): [ArtCNN-PyTorch](https://github.com/umzi2/ArtCNN-PyTorch), [DUnet](https://github.com/umzi2/DUnet), [FlexNet](https://github.com/umzi2/FlexNet), [GaterV3](https://github.com/umzi2/GaterV3), [MetaGan](https://github.com/umzi2/MetaGan), [MoESR](https://github.com/umzi2/MoESR), [MoSR](https://github.com/umzi2/MoSR), [RTMoSR](https://github.com/rewaifu/RTMoSR), [SPANPlus](https://github.com/umzi2/SPANPlus)
-- The [ArtCNN](https://github.com/Artoriuz/ArtCNN) architecture is originally developed by [Artoriuz](https://github.com/Artoriuz).
-- The [FDAT](https://github.com/stinkybread/FDAT) architecture is created by [stinkybread (sharekhan)](https://github.com/stinkybread).
-- The [TFDAT](https://github.com/Kim2091/TFDAT) architecture is a temporally stable version of FDAT, created by [Kim2091](https://github.com/Kim2091).
-- The [TSPAN](https://github.com/Kim2091/TSPAN) and [TSPANv2](https://github.com/Kim2091/TSPANv2) architectures are temporally consistent variants of the SPAN architecture created by [Kim2091](https://github.com/Kim2091). TSPANv2 is an enhanced version of TSPAN with major improvements to temporal stability, Use [Vapourkit](https://github.com/Kim2091/vapourkit) to upscale videos with TSPAN and TSPANv2 models.
-- The [DIS](https://github.com/Kim2091/DIS) architecture is an ultra lightweight arch created by [Kim2091](https://github.com/Kim2091).
-- The TSCUNet architecture is from [aaf6aa/SCUNet](https://github.com/aaf6aa/SCUNet) which is a modification of [SCUNet](https://github.com/cszn/SCUNet), and parts of the training code for TSCUNet are adapted from [TSCUNet_Trainer](https://github.com/Demetter/TSCUNet_Trainer).
-- Several enhancements reference implementations from [Corpsecreate/neosr](https://github.com/Corpsecreate/neosr) and its original repo [neosr](https://github.com/muslll/neosr).
-- Members of the Enhance Everything Discord server: [Corpsecreate](https://github.com/Corpsecreate), [joeyballentine](https://github.com/joeyballentine), [Kim2091](https://github.com/Kim2091).
+Datasets are supplied as unrelated folders:
+
+```yaml
+datasets:
+  train:
+    type: unpairedimagedataset
+    dataroot_lq:  [datasets/train/lr]    # real low-quality images
+    dataroot_ref: [datasets/train/ref]   # unrelated high-quality target-domain images
+```
+
+## Quickstart
+
+```bash
+# install (CUDA build of PyTorch recommended)
+pip install -e .
+
+# train (PDM unpaired SR)
+python train_blind.py --auto_resume -opt options/blind_pdm/train.yml
+
+# Windows convenience launcher
+run_train_blind.bat
+```
+
+Example configs live in `options/blind_pdm/`:
+- `train.yml` — baseline x4 unpaired config (ESRGAN/RRDBNet generator).
+- `train_plksr_x4_satellite.yml` — example domain-transfer config (PLKSR generator).
+
+Testing / inference:
+```bash
+python test_blind.py -opt options/blind_pdm/train.yml      # validation pipeline
+python inference.py     ...                                 # run a trained generator on a folder
+python inference_deg.py ...                                 # apply a trained degradation model to HR images
+```
+
+The `blind.method` option selects the training variant: `pdm_sr` (default) or `pdm_resshift` (ResShift diffusion generator).
+
+## Available architectures
+
+Generators and discriminators are auto-registered from `traiNNer/archs/` (most via [Spandrel](https://github.com/chaiNNer-org/spandrel)). Set `network_g.type` to any of, e.g.:
+
+`esrgan` (RRDBNet), `plksr` / `realplksr`, `span` / `spanplus`, `compact` / `ultracompact`, `swinir_*`, `swin2sr_*`, `hat_*`, `dat` / `dat_2`, `drct`, `rgt`, `srformer`, `atd`, `omnisr`, `man`, `rcan`, `craft`, `elan`, `lmlt`, `mosr` / `moesr2`, `flexnet`, `safmn`, `seemore_t`, `realcugan`, `resshift`, and more (run the registry listing in `traiNNer/archs/__init__.py` to see all entries).
+
+PDM-specific archs: `pdmdegmodel`, `pdmpatchgandiscriminator`. Generic discriminators (`unetdiscriminatorsn`, `vggstylediscriminator`, `patchgandiscriminatorsn`, …) are also available.
+
+## License and acknowledgement
+
+Released under the [Apache License 2.0](LICENSE.txt). See [LICENSE](LICENSE/README.md) for individual licenses and acknowledgements.
+
+- Built on [traiNNer-redux](https://github.com/the-database/traiNNer-redux), itself a fork of [joeyballentine/traiNNer-redux](https://github.com/joeyballentine/traiNNer-redux) and [BasicSR](https://github.com/XPixelGroup/BasicSR).
+- Network architectures are imported from [Spandrel](https://github.com/chaiNNer-org/spandrel) and contributors including [umzi2](https://github.com/umzi2), [Kim2091](https://github.com/Kim2091), [stinkybread](https://github.com/stinkybread), and [Artoriuz](https://github.com/Artoriuz).
+- The unpaired training pipeline is based on the Probabilistic Degradation Model approach to blind super-resolution.

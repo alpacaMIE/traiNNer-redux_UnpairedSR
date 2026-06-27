@@ -29,9 +29,8 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 from traiNNer.data import build_dataloader, build_dataset
 from traiNNer.data.data_sampler import EnlargedSampler
-from traiNNer.data.paired_image_dataset import PairedImageDataset
-from traiNNer.data.paired_video_dataset import PairedVideoDataset
 from traiNNer.data.prefetch_dataloader import CPUPrefetcher, CUDAPrefetcher
+from traiNNer.data.unpaired_image_dataset import UnpairedImageDataset
 from traiNNer.models import build_model
 from traiNNer.utils import (
     AvgTimer,
@@ -336,12 +335,12 @@ def train_pipeline(root_path: str) -> None:
         if not any(
             isinstance(
                 val_loader.dataset,
-                (PairedImageDataset | PairedVideoDataset),
+                UnpairedImageDataset,
             )
             for val_loader in val_loaders
         ):
             raise ValueError(
-                "Validation metrics are enabled, at least one validation dataset must have type PairedImageDataset or PairedVideoDataset."
+                "Validation metrics are enabled, at least one validation dataset must have type UnpairedImageDataset (with paired LQ/GT validation folders)."
             )
 
     if torch.is_anomaly_enabled():

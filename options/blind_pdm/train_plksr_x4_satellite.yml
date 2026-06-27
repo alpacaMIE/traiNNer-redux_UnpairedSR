@@ -136,8 +136,6 @@ train:
     - name: sr_percep
       type: perceptualloss
       criterion: l1
-      layer_weights:
-        conv5_4: 1
       loss_weight: 0.5
     - name: lr_adv
       type: ganloss
