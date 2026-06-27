@@ -28,13 +28,11 @@ datasets:
     dataroot_lq: [datasets/val/lr]
 
 network_g:
-  type: rrdbnet
+  type: esrgan
   in_nc: 3
   out_nc: 3
-  nf: 64
-  nb: 23
-  gc: 32
-  upscale: 4
+  num_filters: 64
+  num_blocks: 23
 
 network_deg:
   type: pdmdegmodel
@@ -137,13 +135,6 @@ train:
     - name: sr_percep
       type: perceptualloss
       criterion: l1
-      layer_weights:
-        conv5_4: 1
-      vgg_type: vgg19
-      use_input_norm: true
-      range_norm: false
-      perceptual_weight: 1.0
-      style_weight: 0.0
       loss_weight: 0.05
     - name: lr_adv
       type: ganloss

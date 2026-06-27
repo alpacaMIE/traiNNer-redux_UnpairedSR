@@ -1,5 +1,5 @@
 [project]
-name = "traiNNer-redux"
+name = "trainner-redux-unpaired-sr"
 requires-python = ">=3.10"
 dynamic = ["version"]
 dependencies = [
@@ -29,28 +29,14 @@ dependencies = [
 "tqdm",
 ]
 authors = [{name = "the-database"}]
-description = "Deep learning training framework for image super resolution and restoration."
+description = "Unpaired / blind (PDM) super-resolution training framework, based on traiNNer-redux."
 readme = "README.md"
 license = {file = "LICENSE.txt"}
-keywords = ["machine learning", "deep learning", "neural network", "pytorch", "super resolution", "upscale", "image restoration" ]
+keywords = ["machine learning", "deep learning", "neural network", "pytorch", "super resolution", "upscale", "unpaired", "blind super resolution" ]
 
 [project.optional-dependencies]
 dev = ["ruff", "pyright", "pytest", "syrupy", "torchfix"]
-onnx = [
-    "lief",
-    "ml_dtypes",
-    "onnx-graphsurgeon",
-    "onnx~=1.19.0",
-    "onnxconverter-common~=1.16.0",
-    "onnxruntime-gpu==1.23.2",
-    "onnxscript",
-    "onnxslim",
-    "polygraphy",
-    "nvidia-modelopt",
-]
-docs = ["sphinx", "sphinx-rtd-theme"]
 scripts = ["chainner_ext", "matplotlib", "pandas"]
-segmentation = ["segmentation_models_pytorch"]
 
 [project.urls]
 Repository = "https://github.com/the-database/traiNNer-redux.git"
